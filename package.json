@@ -1,7 +1,11 @@
 {
   "name": "vanilla-basic",
   "version": "1.0.0",
-  "scripts": { 
+  "scripts": {
     "start": "sirv ./src public --cors --single --no-clear --port 8000"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/node": "^22.15.23"
   }
 }
