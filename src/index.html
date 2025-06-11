@@ -14,25 +14,51 @@
     body {
       font-family: Arial, sans-serif;
       background-color: var(--bg-color);
-      padding: 2rem;
-      text-align: center;
+      margin: 0;
       color: var(--text-color);
+      transition: background-color 0.5s ease, color 0.5s ease;
     }
 
-    #app {
+    nav {
+      background-color: var(--card-bg);
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    nav a {
+      text-decoration: none;
+      color: var(--text-color);
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .page {
+      display: none;
+      padding: 2rem;
+      max-width: 600px;
+      margin: auto;
+    }
+
+    .page.active {
+      display: block;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+
+    .card {
       background-color: var(--card-bg);
       padding: 2rem;
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
-      margin: 0 auto;
-      animation: fadeIn 1s ease-in-out;
+      transition: background-color 0.5s ease;
     }
 
     input, button, select {
       padding: 0.5rem;
-      margin: 0.5rem;
-      width: 80%;
+      margin: 0.5rem 0;
+      width: 100%;
       transition: all 0.3s ease;
     }
 
@@ -45,11 +71,23 @@
       font-weight: bold;
       color: var(--text-color);
       opacity: 0;
-      transition: opacity 0.5s ease-in-out;
+      transition: opacity 0.5s ease-in-out, color 0.5s ease;
     }
 
     #output.show {
       opacity: 1;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    li {
+      background: var(--card-bg);
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      border-radius: 5px;
     }
 
     @keyframes fadeIn {
@@ -59,17 +97,33 @@
   </style>
 </head>
 <body>
-  <div id="app">
-    <h2>JavaScript Demo App</h2>
-    <select id="themeSelector" onchange="changeTheme()">
-      <option value="light">Light Theme</option>
-      <option value="dark">Dark Theme</option>
-      <option value="blue">Blue Theme</option>
-    </select>
-    <input type="text" id="nameInput" placeholder="Enter your name" />
-    <input type="text" id="cityInput" placeholder="Enter your city" />
-    <button onclick="greetUser()">Greet</button>
-    <div id="output"></div>
+  <nav>
+    <a onclick="navigateTo('home')">Home</a>
+    <a onclick="navigateTo('todo')">Todo</a>
+  </nav>
+
+  <div id="home" class="page active">
+    <div class="card">
+      <h2>JavaScript Demo App</h2>
+      <select id="themeSelector" onchange="changeTheme()">
+        <option value="light">Light Theme</option>
+        <option value="dark">Dark Theme</option>
+        <option value="blue">Blue Theme</option>
+      </select>
+      <input type="text" id="nameInput" placeholder="Enter your name" />
+      <input type="text" id="cityInput" placeholder="Enter your city" />
+      <button onclick="greetUser()">Greet</button>
+      <div id="output"></div>
+    </div>
+  </div>
+
+  <div id="todo" class="page">
+    <div class="card">
+      <h2>Todo List</h2>
+      <input type="text" id="todoInput" placeholder="Add new task" />
+      <button onclick="addTodo()">Add Task</button>
+      <ul id="todoList"></ul>
+    </div>
   </div>
 
   <script>
@@ -87,9 +141,9 @@
       output.classList.add('show');
     }
 
-    function changeTheme() {
-      const theme = document.getElementById('themeSelector').value;
+    function applyTheme(theme) {
       const root = document.documentElement;
+      root.style.transition = 'background-color 0.5s ease, color 0.5s ease';
 
       if (theme === 'light') {
         root.style.setProperty('--bg-color', '#f0f2f5');
@@ -105,6 +159,33 @@
         root.style.setProperty('--card-bg', '#cce0ff');
       }
     }
+
+    function changeTheme() {
+      const theme = document.getElementById('themeSelector').value;
+      localStorage.setItem('selectedTheme', theme);
+      applyTheme(theme);
+    }
+
+    function navigateTo(pageId) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+    }
+
+    function addTodo() {
+      const input = document.getElementById('todoInput');
+      const text = input.value.trim();
+      if (!text) return;
+      const li = document.createElement('li');
+      li.textContent = text;
+      document.getElementById('todoList').appendChild(li);
+      input.value = '';
+    }
+
+    window.onload = () => {
+      const savedTheme = localStorage.getItem('selectedTheme') || 'light';
+      document.getElementById('themeSelector').value = savedTheme;
+      applyTheme(savedTheme);
+    };
   </script>
 </body>
 </html>
