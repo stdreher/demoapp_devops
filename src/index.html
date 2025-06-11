@@ -1,44 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calendar App</title>
-    <link rel="stylesheet" href="styles.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JS Demo App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      padding: 2rem;
+      text-align: center;
+    }
+    #app {
+      background-color: white;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+      margin: 0 auto;
+    }
+    input, button {
+      padding: 0.5rem;
+      margin: 0.5rem;
+      width: 80%;
+    }
+    #output {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
 </head>
 <body>
-    <div class="calendar-container">
-        <div class="calendar-header">
-            <button id="prevMonth" class="nav-btn">&lt;</button>
-            <h1 id="monthYear"></h1>
-            <button id="nextMonth" class="nav-btn">&gt;</button>
-        </div>
-        
-        <div class="calendar-grid">
-            <div class="day-header">Sun</div>
-            <div class="day-header">Mon</div>
-            <div class="day-header">Tue</div>
-            <div class="day-header">Wed</div>
-            <div class="day-header">Thu</div>
-            <div class="day-header">Fri</div>
-            <div class="day-header">Sat</div>
-            
-            <div id="calendarDays" class="calendar-days"></div>
-        </div>
-        
-        <div class="event-section">
-            <h3>Add Event</h3>
-            <input type="date" id="eventDate" />
-            <input type="text" id="eventTitle" placeholder="Event title" />
-            <button id="addEvent">Add Event</button>
-            
-            <div id="eventsList" class="events-list">
-                <h4>Upcoming Events</h4>
-                <div id="eventsContainer"></div>
-            </div>
-        </div>
-    </div>
-    
-    <script src="script.js"></script>
+  <div id="app">
+    <h2>JavaScript Demo App</h2>
+    <input type="text" id="nameInput" placeholder="Enter your name" />
+    <button onclick="greetUser()">Greet</button>
+    <div id="output"></div>
+  </div>
+
+  <script>
+    function greetUser() {
+      const name = document.getElementById('nameInput').value.trim();
+      const output = document.getElementById('output');
+
+      if (name) {
+        output.textContent = `Hello, ${name}! Welcome to the JS Demo App.`;
+      } else {
+        output.textContent = 'Please enter a name to be greeted.';
+      }
+    }
+  </script>
 </body>
 </html>
