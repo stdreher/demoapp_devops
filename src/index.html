@@ -18,16 +18,30 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       max-width: 400px;
       margin: 0 auto;
+      animation: fadeIn 1s ease-in-out;
     }
     input, button {
       padding: 0.5rem;
       margin: 0.5rem;
       width: 80%;
+      transition: all 0.3s ease;
+    }
+    input:focus, button:hover {
+      transform: scale(1.05);
     }
     #output {
       margin-top: 1rem;
       font-weight: bold;
       color: #333;
+      opacity: 0;
+      transition: opacity 0.5s ease-in-out;
+    }
+    #output.show {
+      opacity: 1;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </head>
@@ -35,6 +49,7 @@
   <div id="app">
     <h2>JavaScript Demo App</h2>
     <input type="text" id="nameInput" placeholder="Enter your name" />
+    <input type="text" id="cityInput" placeholder="Enter your city" />
     <button onclick="greetUser()">Greet</button>
     <div id="output"></div>
   </div>
@@ -42,13 +57,16 @@
   <script>
     function greetUser() {
       const name = document.getElementById('nameInput').value.trim();
+      const city = document.getElementById('cityInput').value.trim();
       const output = document.getElementById('output');
 
-      if (name) {
-        output.textContent = `Hello, ${name}! Welcome to the JS Demo App.`;
+      if (name && city) {
+        output.textContent = `Hello, ${name} from ${city}! Welcome to the JS Demo App.`;
       } else {
-        output.textContent = 'Please enter a name to be greeted.';
+        output.textContent = 'Please enter both your name and city.';
       }
+
+      output.classList.add('show');
     }
   </script>
 </body>
