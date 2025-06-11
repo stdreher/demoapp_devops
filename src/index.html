@@ -5,14 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>JS Demo App</title>
   <style>
+    :root {
+      --bg-color: #f0f2f5;
+      --text-color: #333;
+      --card-bg: white;
+    }
+
     body {
       font-family: Arial, sans-serif;
-      background-color: #f0f2f5;
+      background-color: var(--bg-color);
       padding: 2rem;
       text-align: center;
+      color: var(--text-color);
     }
+
     #app {
-      background-color: white;
+      background-color: var(--card-bg);
       padding: 2rem;
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
@@ -20,25 +28,30 @@
       margin: 0 auto;
       animation: fadeIn 1s ease-in-out;
     }
-    input, button {
+
+    input, button, select {
       padding: 0.5rem;
       margin: 0.5rem;
       width: 80%;
       transition: all 0.3s ease;
     }
+
     input:focus, button:hover {
       transform: scale(1.05);
     }
+
     #output {
       margin-top: 1rem;
       font-weight: bold;
-      color: #333;
+      color: var(--text-color);
       opacity: 0;
       transition: opacity 0.5s ease-in-out;
     }
+
     #output.show {
       opacity: 1;
     }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(-20px); }
       to { opacity: 1; transform: translateY(0); }
@@ -48,6 +61,11 @@
 <body>
   <div id="app">
     <h2>JavaScript Demo App</h2>
+    <select id="themeSelector" onchange="changeTheme()">
+      <option value="light">Light Theme</option>
+      <option value="dark">Dark Theme</option>
+      <option value="blue">Blue Theme</option>
+    </select>
     <input type="text" id="nameInput" placeholder="Enter your name" />
     <input type="text" id="cityInput" placeholder="Enter your city" />
     <button onclick="greetUser()">Greet</button>
@@ -67,6 +85,25 @@
       }
 
       output.classList.add('show');
+    }
+
+    function changeTheme() {
+      const theme = document.getElementById('themeSelector').value;
+      const root = document.documentElement;
+
+      if (theme === 'light') {
+        root.style.setProperty('--bg-color', '#f0f2f5');
+        root.style.setProperty('--text-color', '#333');
+        root.style.setProperty('--card-bg', 'white');
+      } else if (theme === 'dark') {
+        root.style.setProperty('--bg-color', '#1e1e1e');
+        root.style.setProperty('--text-color', '#f0f0f0');
+        root.style.setProperty('--card-bg', '#2c2c2c');
+      } else if (theme === 'blue') {
+        root.style.setProperty('--bg-color', '#e6f0ff');
+        root.style.setProperty('--text-color', '#00274d');
+        root.style.setProperty('--card-bg', '#cce0ff');
+      }
     }
   </script>
 </body>
