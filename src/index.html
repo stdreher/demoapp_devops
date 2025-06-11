@@ -17,6 +17,7 @@
       padding: 2rem;
       text-align: center;
       color: var(--text-color);
+      transition: background-color 0.5s ease, color 0.5s ease;
     }
 
     #app {
@@ -27,6 +28,7 @@
       max-width: 400px;
       margin: 0 auto;
       animation: fadeIn 1s ease-in-out;
+      transition: background-color 0.5s ease;
     }
 
     input, button, select {
@@ -45,7 +47,7 @@
       font-weight: bold;
       color: var(--text-color);
       opacity: 0;
-      transition: opacity 0.5s ease-in-out;
+      transition: opacity 0.5s ease-in-out, color 0.5s ease;
     }
 
     #output.show {
@@ -87,9 +89,10 @@
       output.classList.add('show');
     }
 
-    function changeTheme() {
-      const theme = document.getElementById('themeSelector').value;
+    function applyTheme(theme) {
       const root = document.documentElement;
+
+      root.style.transition = 'background-color 0.5s ease, color 0.5s ease';
 
       if (theme === 'light') {
         root.style.setProperty('--bg-color', '#f0f2f5');
@@ -105,6 +108,19 @@
         root.style.setProperty('--card-bg', '#cce0ff');
       }
     }
+
+    function changeTheme() {
+      const theme = document.getElementById('themeSelector').value;
+      localStorage.setItem('selectedTheme', theme);
+      applyTheme(theme);
+    }
+
+    // Apply saved theme on page load
+    window.onload = () => {
+      const savedTheme = localStorage.getItem('selectedTheme') || 'light';
+      document.getElementById('themeSelector').value = savedTheme;
+      applyTheme(savedTheme);
+    };
   </script>
 </body>
 </html>
