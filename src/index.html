@@ -94,12 +94,122 @@
       from { opacity: 0; transform: translateY(-20px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    /* Calendar specific styles */
+    .calendar-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .calendar-header button {
+      width: auto;
+      padding: 0.5rem 1rem;
+      margin: 0 0.5rem;
+      cursor: pointer;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background: #ddd;
+      border: 1px solid #ddd;
+    }
+
+    .calendar-day-header {
+      background: var(--card-bg);
+      padding: 0.5rem;
+      text-align: center;
+      font-weight: bold;
+      border: 1px solid #ddd;
+    }
+
+    .calendar-day {
+      background: var(--card-bg);
+      padding: 0.5rem;
+      height: 60px;
+      border: 1px solid #ddd;
+      cursor: pointer;
+      position: relative;
+      transition: background-color 0.2s ease;
+    }
+
+    .calendar-day:hover {
+      background: #f0f0f0;
+    }
+
+    .calendar-day.other-month {
+      color: #ccc;
+      background: #f8f8f8;
+    }
+
+    .calendar-day.has-entry {
+      background: #ffeeee;
+      color: #cc0000;
+      font-weight: bold;
+    }
+
+    .calendar-day.has-entry:hover {
+      background: #ffdddd;
+    }
+
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+      background-color: var(--card-bg);
+      margin: 15% auto;
+      padding: 2rem;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 500px;
+      position: relative;
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      position: absolute;
+      right: 1rem;
+      top: 1rem;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: #000;
+    }
+
+    .entry-textarea {
+      width: 100%;
+      height: 100px;
+      resize: vertical;
+      margin: 1rem 0;
+    }
   </style>
 </head>
 <body>
   <nav>
     <a onclick="navigateTo('home')">Home</a>
     <a onclick="navigateTo('todo')">Todo</a>
+    <a onclick="navigateTo('calendar')">Calendar</a>
   </nav>
 
   <div id="home" class="page active">
@@ -123,6 +233,34 @@
       <input type="text" id="todoInput" placeholder="Add new task" />
       <button onclick="addTodo()">Add Task</button>
       <ul id="todoList"></ul>
+    </div>
+  </div>
+
+  <div id="calendar" class="page">
+    <div class="card">
+      <div class="calendar-container">
+        <h2>Calendar</h2>
+        <div class="calendar-header">
+          <button onclick="previousMonth()">&lt; Previous</button>
+          <h3 id="currentMonth"></h3>
+          <button onclick="nextMonth()">Next &gt;</button>
+        </div>
+        <div class="calendar-grid" id="calendarGrid">
+          <!-- Calendar will be generated here -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal for adding/editing entries -->
+  <div id="entryModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h3 id="modalTitle">Add Entry</h3>
+      <p>Date: <span id="selectedDate"></span></p>
+      <textarea id="entryText" class="entry-textarea" placeholder="Enter your note or event here..."></textarea>
+      <button onclick="saveEntry()">Save Entry</button>
+      <button onclick="deleteEntry()" id="deleteBtn" style="background: #ff4444; display: none;">Delete Entry</button>
     </div>
   </div>
 
@@ -181,10 +319,169 @@
       input.value = '';
     }
 
+    // Calendar functionality
+    let currentDate = new Date();
+    let selectedDateForEntry = null;
+
+    function initCalendar() {
+      displayCalendar(currentDate);
+    }
+
+    function displayCalendar(date) {
+      const grid = document.getElementById('calendarGrid');
+      const monthElement = document.getElementById('currentMonth');
+      
+      // Clear existing calendar
+      grid.innerHTML = '';
+      
+      // Set month header
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'];
+      monthElement.textContent = `${monthNames[date.getMonth()]} ${date.getFullYear()}`;
+      
+      // Add day headers
+      const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+      dayHeaders.forEach(day => {
+        const header = document.createElement('div');
+        header.className = 'calendar-day-header';
+        header.textContent = day;
+        grid.appendChild(header);
+      });
+      
+      // Get first day of month and number of days
+      const firstDay = new Date(date.getFullYear(), date.getMonth(), 1);
+      const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
+      const startDate = new Date(firstDay);
+      startDate.setDate(startDate.getDate() - firstDay.getDay());
+      
+      // Generate calendar days
+      for (let i = 0; i < 42; i++) {
+        const cellDate = new Date(startDate);
+        cellDate.setDate(startDate.getDate() + i);
+        
+        const dayCell = document.createElement('div');
+        dayCell.className = 'calendar-day';
+        dayCell.textContent = cellDate.getDate();
+        
+        // Mark days from other months
+        if (cellDate.getMonth() !== date.getMonth()) {
+          dayCell.classList.add('other-month');
+        }
+        
+        // Check if this date has an entry and mark it
+        const dateKey = formatDateKey(cellDate);
+        const entries = getCalendarEntries();
+        if (entries[dateKey]) {
+          dayCell.classList.add('has-entry');
+        }
+        
+        // Add click handler
+        dayCell.addEventListener('click', () => openEntryModal(cellDate));
+        
+        grid.appendChild(dayCell);
+      }
+    }
+
+    function formatDateKey(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function formatDateDisplay(date) {
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      return date.toLocaleDateString(undefined, options);
+    }
+
+    function previousMonth() {
+      currentDate.setMonth(currentDate.getMonth() - 1);
+      displayCalendar(currentDate);
+    }
+
+    function nextMonth() {
+      currentDate.setMonth(currentDate.getMonth() + 1);
+      displayCalendar(currentDate);
+    }
+
+    function openEntryModal(date) {
+      selectedDateForEntry = date;
+      const modal = document.getElementById('entryModal');
+      const modalTitle = document.getElementById('modalTitle');
+      const selectedDateElement = document.getElementById('selectedDate');
+      const entryText = document.getElementById('entryText');
+      const deleteBtn = document.getElementById('deleteBtn');
+      
+      selectedDateElement.textContent = formatDateDisplay(date);
+      
+      // Load existing entry if it exists
+      const dateKey = formatDateKey(date);
+      const entries = getCalendarEntries();
+      const existingEntry = entries[dateKey];
+      
+      if (existingEntry) {
+        modalTitle.textContent = 'Edit Entry';
+        entryText.value = existingEntry;
+        deleteBtn.style.display = 'inline-block';
+      } else {
+        modalTitle.textContent = 'Add Entry';
+        entryText.value = '';
+        deleteBtn.style.display = 'none';
+      }
+      
+      modal.style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('entryModal').style.display = 'none';
+      selectedDateForEntry = null;
+    }
+
+    function saveEntry() {
+      if (!selectedDateForEntry) return;
+      
+      const entryText = document.getElementById('entryText').value.trim();
+      const dateKey = formatDateKey(selectedDateForEntry);
+      const entries = getCalendarEntries();
+      
+      if (entryText) {
+        entries[dateKey] = entryText;
+      } else {
+        delete entries[dateKey];
+      }
+      
+      localStorage.setItem('calendarEntries', JSON.stringify(entries));
+      closeModal();
+      displayCalendar(currentDate);
+    }
+
+    function deleteEntry() {
+      if (!selectedDateForEntry) return;
+      
+      const dateKey = formatDateKey(selectedDateForEntry);
+      const entries = getCalendarEntries();
+      delete entries[dateKey];
+      
+      localStorage.setItem('calendarEntries', JSON.stringify(entries));
+      closeModal();
+      displayCalendar(currentDate);
+    }
+
+    function getCalendarEntries() {
+      const entries = localStorage.getItem('calendarEntries');
+      return entries ? JSON.parse(entries) : {};
+    }
+
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+      const modal = document.getElementById('entryModal');
+      if (event.target === modal) {
+        closeModal();
+      }
+    });
+
     window.onload = () => {
       const savedTheme = localStorage.getItem('selectedTheme') || 'light';
       document.getElementById('themeSelector').value = savedTheme;
       applyTheme(savedTheme);
+      initCalendar();
     };
   </script>
 </body>
